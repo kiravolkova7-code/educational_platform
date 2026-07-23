@@ -6,7 +6,7 @@ from materials.views import CourseViewSet, LessonList, LessonRetrieve, LessonCre
 app_name = MaterialsConfig.name
 
 router = DefaultRouter()
-router.register(r'courses', CourseViewSet, basename='courses')
+router.register('courses', CourseViewSet, basename='course')
 
 urlpatterns = [
     path("lessons/", LessonList.as_view(), name='lessons-list'),

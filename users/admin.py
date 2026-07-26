@@ -1,17 +1,13 @@
-from .models import Payment
+# users/admin.py
 from django.contrib import admin
+from .models import User, Payment
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django import forms
-
-from .models import User
+from django.core.exceptions import ValidationError
 
 
 class UserCreationForm(forms.ModelForm):
-    """
-    Форма для создания нового пользователя через админку.
-    Требует ввода email и пароля.
-    """
     password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput)
     password2 = forms.CharField(
         label='Подтверждение пароля',
@@ -21,13 +17,13 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'last_name', 'phone', 'city')
+        fields = ('email', 'phone', 'city')
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Пароли не совпадают.")
+            raise ValidationError("Пароли не совпадают.")
         return password2
 
     def save(self, commit=True):
@@ -41,7 +37,8 @@ class UserCreationForm(forms.ModelForm):
 class UserChangeForm(forms.ModelForm):
     """
     Форма для изменения существующего пользователя.
-    Пароль отображается в виде хэша (только для чтения).
+    Оставляем только поле с хэшем пароля. Все системные права (groups, permissions)
+    должны быть доступны в форме, так как их использует BaseUserAdmin.
     """
     password = ReadOnlyPasswordHashField(
         label='Пароль',
@@ -50,7 +47,7 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        # Исключаем авто-поля из формы редактирования
+        # Исключаем ТОЛЬКО авто-поля времени. Группы и права НЕ трогаем.
         exclude = ('created_at', 'update_at')
 
     def clean_password(self):
@@ -62,15 +59,16 @@ class UserAdmin(BaseUserAdmin):
     add_form = UserCreationForm
     form = UserChangeForm
 
-    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'created_at')
+    list_display = ('email', 'phone', 'city', 'is_staff', 'is_active', 'created_at')
     list_filter = ('is_staff', 'is_superuser', 'is_active')
 
-    # Убрали created_at и update_at отсюда
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Персональные данные', {'fields': ('first_name', 'last_name', 'avatar', 'phone', 'city')}),
-        ('Права доступа', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Важные даты', {'fields': ('last_login',)}),  # Оставили last_login, он редактируемый
+        ('Персональные данные', {'fields': ('avatar', 'phone', 'city')}),
+        ('Права доступа', {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
+        }),
+        ('Важные даты', {'fields': ('last_login',)}),
     )
 
     add_fieldsets = (
@@ -80,8 +78,11 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
 
-    search_fields = ('email', 'first_name', 'last_name')
+    search_fields = ('email',)
     ordering = ('-created_at',)
+    readonly_fields = ('last_login',)
+    filter_horizontal = ('groups', 'user_permissions',)  # Важная строка для красивого отображения ManyToMany
+
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):

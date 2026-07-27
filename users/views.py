@@ -1,5 +1,8 @@
+
 from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
+
 from .models import Payment
 from .serializers import PaymentSerializer
 from .filters import PaymentFilter
@@ -8,11 +11,6 @@ from rest_framework.response import Response
 from .serializers import UserProfileSerializer, UserAvatarUpdateSerializer
 
 class ProfileRetrieveUpdateView(generics.RetrieveUpdateAPIView):
-    """
-    GET /api/profile/ — просмотр своего профиля
-    PATCH /api/profile/ — частичное обновление данных профиля
-    PUT /api/profile/ — полное обновление
-    """
     serializer_class = UserProfileSerializer
     permission_classes = []  # временное отключение
 
@@ -40,11 +38,10 @@ class AvatarUpdateView(generics.UpdateAPIView):
 
 
 class PaymentViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
-
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = PaymentFilter
-
     ordering_fields = ['payment_date']
 
     def get_queryset(self):

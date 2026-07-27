@@ -52,3 +52,10 @@ class RegisterSerializer(serializers.ModelSerializer):
             city=validated_data.get('city')
         )
         return user
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'phone', 'city', 'avatar')
+        read_only_fields = ('id', 'email')

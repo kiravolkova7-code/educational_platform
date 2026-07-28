@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from materials.models import Course, Lesson
-from subscriptions.models import Subscription
 from materials.validators import validate_youtube_only
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -14,10 +13,6 @@ class LessonSerializer(serializers.ModelSerializer):
         model = Lesson
         fields = '__all__'
         read_only_fields = ('owner', 'created_at', 'updated_at')
-
-
-from rest_framework import serializers
-from .models import Course
 
 
 class CourseSerializer(serializers.ModelSerializer):

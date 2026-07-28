@@ -9,7 +9,6 @@ YOUTUBE_SHORT_REGEX = re.compile(r'^(https?://)?(www\.)?youtu\.be/')
 def extract_domain(url: str) -> str | None:
     """
     Извлекает чистый домен из URL без учета порта.
-    Возвращает None, если ссылка пустая или не является HTTP(S).
     """
     if not url:
         return None

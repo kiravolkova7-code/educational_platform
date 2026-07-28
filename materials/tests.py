@@ -1,11 +1,8 @@
-# materials/tests/test_views.py
-
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from users.models import User
 from materials.models import Course, Lesson
-from subscriptions.models import Subscription as SubscriptionsModel
 from django.contrib.auth.models import Group
 
 
@@ -24,13 +21,12 @@ class LessonsAPITests(APITestCase):
         moderators_group, _ = Group.objects.get_or_create(name='moderators')
         cls.user_moderator.groups.add(moderators_group)
 
-        # Создаём тестовые курсы заранее с указанием owner
-        cls.course_1 = Course.objects.create(title="Тестовый курс", owner=cls.user_owner)  # <--- Добавили owner!
+        cls.course_1 = Course.objects.create(title="Тестовый курс", owner=cls.user_owner)
         cls.course_2 = Course.objects.create(title="Другой курс")
 
         cls.client = APIClient()
 
-    ### Часть 1: Тесты CRUD уроков ###
+    # Часть 1: Тесты CRUD уроков
 
     def test_list_lessons_as_owner(self):
         self.client.force_authenticate(user=self.__class__.user_owner)
@@ -96,19 +92,15 @@ class LessonsAPITests(APITestCase):
 
         self.client.force_authenticate(user=self.__class__.user_owner)
         response = self.client.delete(reverse('materials:lesson-detail', args=[lesson.pk]))
-        # ПРОВЕРКА УДАЛЕНИЯ ОТ OWNER НЕ ДОЛЖНА БЫТЬ НА 204!
-        # Согласно вашей логике, владелец не может удалять уроки. Он получит 403 Forbidden.
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         self.client.force_authenticate(user=self.__class__.user_moderator)
         response = self.client.delete(reverse('materials:lesson-detail', args=[lesson.pk]))
-        # Модератор тоже не может удалять -> 403 Forbidden.
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         admin = User.objects.create_superuser(email='admin@example.com', password='pass')
         self.client.force_authenticate(user=admin)
         response = self.client.delete(reverse('materials:lesson-detail', args=[lesson.pk]))
-        # ТОЛЬКО АДМИН МОЖЕТ УДАЛЯТЬ -> Статус 204 NO CONTENT.
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
@@ -122,7 +114,6 @@ class SubscriptionsAPITests(APITestCase):
         """Создаём общие объекты один раз для всего набора тестов."""
         cls.user_regular = User.objects.create_user(email='regular@example.com', password='pass')
 
-        # Курс создаётся от имени того же пользователя!
         cls.course_1 = Course.objects.create(title="Тестовый курс", owner=cls.user_regular)
 
 
@@ -140,7 +131,7 @@ class SubscriptionsAPITests(APITestCase):
         self.assertEqual(sub_response.data['message'], 'подписка добавлена')
 
         detail_response = self.client.get(reverse('materials:course-detail', args=[self.__class__.course_1.id]))
-        self.assertEqual(detail_response.status_code, status.HTTP_200_OK)  # Теперь должно пройти успешно
+        self.assertEqual(detail_response.status_code, status.HTTP_200_OK)
         self.assertTrue(detail_response.data['is_subscribed'])
 
         unsub_response = self.client.post('/subscription/', data={'course_id': course_id}, format='json')

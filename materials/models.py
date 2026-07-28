@@ -12,7 +12,11 @@ class Course(models.Model):
     update_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='courses', verbose_name='Владелец', blank=True, null=True)
-
+    subscribers = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='subscribed_courses',
+        verbose_name='Подписчики',
+        blank=True)
 
     def __str__(self):
         return self.title

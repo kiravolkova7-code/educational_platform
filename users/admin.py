@@ -1,4 +1,3 @@
-# users/admin.py
 from django.contrib import admin
 from .models import User, Payment
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -37,8 +36,6 @@ class UserCreationForm(forms.ModelForm):
 class UserChangeForm(forms.ModelForm):
     """
     Форма для изменения существующего пользователя.
-    Оставляем только поле с хэшем пароля. Все системные права (groups, permissions)
-    должны быть доступны в форме, так как их использует BaseUserAdmin.
     """
     password = ReadOnlyPasswordHashField(
         label='Пароль',
@@ -47,7 +44,6 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        # Исключаем ТОЛЬКО авто-поля времени. Группы и права НЕ трогаем.
         exclude = ('created_at', 'update_at')
 
     def clean_password(self):
@@ -81,7 +77,7 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('email',)
     ordering = ('-created_at',)
     readonly_fields = ('last_login',)
-    filter_horizontal = ('groups', 'user_permissions',)  # Важная строка для красивого отображения ManyToMany
+    filter_horizontal = ('groups', 'user_permissions',)
 
 
 @admin.register(Payment)

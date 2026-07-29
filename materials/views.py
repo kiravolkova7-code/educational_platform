@@ -2,6 +2,8 @@ from django.db.models import Prefetch, Q
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 
+from users.models import User
+from .tasks import send_course_update_email
 from materials.models import Course, Lesson
 from materials.paginators import StandardResultsSetPagination
 from materials.serializers import CourseSerializer, LessonSerializer
@@ -57,6 +59,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
         if self.request.user.groups.filter(name='moderators').exists():
             return qs
+
         user = self.request.user
         subscribed_ids = user.subscriptions.values_list('course_id', flat=True)
         return qs.filter(Q(owner=user) | Q(id__in=subscribed_ids)).distinct()
@@ -91,3 +94,28 @@ class CourseViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        """
+        Вызывается после валидации, но до сохранения при update/partial_update.
+        """
+        instance = serializer.save()
+
+        materials_updated = any(
+            field in self.request.data
+            for field in ['modules', 'lessons', 'description']
+        )
+
+        if materials_updated:
+            emails = User.objects.filter(
+                subscriptions__course=instance,
+                payments__paid_course=instance,
+                is_active=True
+            ).values_list('email', flat=True).distinct()
+
+            for email in emails:
+                send_course_update_email.delay(
+                    user_email=email,
+                    course_id=instance.id,
+                    course_title=instance.title
+                )

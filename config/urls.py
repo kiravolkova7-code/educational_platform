@@ -5,4 +5,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include('materials.urls', namespace='materials')),
     path("api/", include('users.urls', namespace='users')),
+    path("subscription/", include('subscriptions.urls', namespace='subscriptions')),
 ]

@@ -2,7 +2,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 
 from .models import Payment, User
-from .permissions import IsOwnerOrModerator
 from .serializers import PaymentSerializer, UserSerializer
 from .filters import PaymentFilter
 from rest_framework import generics, permissions, viewsets, status

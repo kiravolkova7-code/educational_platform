@@ -26,6 +26,14 @@ class LessonsAPITests(APITestCase):
 
         cls.client = APIClient()
 
+        cls.lesson = Lesson.objects.create(
+            title='Тестовый урок',
+            course=cls.course_1,
+            order=2,
+            owner=cls.user_owner,
+            video_url='https://www.youtube.com/watch?v=example',
+        )
+
     # Часть 1: Тесты CRUD уроков
 
     def test_list_lessons_as_owner(self):

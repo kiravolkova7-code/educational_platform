@@ -58,7 +58,8 @@ class CourseViewSet(viewsets.ModelViewSet):
         if self.request.user.groups.filter(name='moderators').exists():
             return qs
         user = self.request.user
-        return qs.filter(Q(owner=user) | Q(subscribers__id=user.id))
+        subscribed_ids = user.subscriptions.values_list('course_id', flat=True)
+        return qs.filter(Q(owner=user) | Q(id__in=subscribed_ids)).distinct()
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -84,7 +85,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
-        if page is not null:
+        if page is not None:
             serializer = self.get_serializer(page, many=True, context={'request': request})
             return self.get_paginated_response(serializer.data)
 

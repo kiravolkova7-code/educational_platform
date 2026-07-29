@@ -13,6 +13,14 @@ class Course(models.Model):
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='courses', verbose_name='Владелец', blank=True, null=True)
 
+    stripe_product_id = models.CharField(
+        max_length=255,
+        verbose_name='ID продукта в Stripe',
+        blank=True,
+        null=True,
+        unique=True,
+        help_text='Заполняется автоматически при создании цены'
+    )
 
     def __str__(self):
         return self.title

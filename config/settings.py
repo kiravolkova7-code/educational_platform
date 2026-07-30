@@ -135,7 +135,7 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 
 CELERY_BEAT_SCHEDULE = {
     'deactivate-inactive-users-daily': {
-        'task': 'users.tasks.deactivate-inactive-users-daily',
+        'task': 'users.tasks.deactivate_inactive_users',
         'schedule': crontab(hour=0, minute=0),
     },
 }
@@ -148,3 +148,5 @@ EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL") == "True"
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+SITE_URL = os.getenv('DOMAIN_NAME', 'http://127.0.0.1:8000')

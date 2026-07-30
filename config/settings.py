@@ -24,7 +24,8 @@ INSTALLED_APPS = [
     'django_filters',
     'materials',
     'users',
-    'subscriptions'
+    'subscriptions',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [

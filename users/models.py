@@ -60,22 +60,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Payment(models.Model):
-    PAYMENT_METHOD_CHOICES = [
-        ('cash', 'Наличные'),
-        ('transfer', 'Перевод на счет'),
-    ]
-
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         verbose_name='Пользователь',
         related_name='payments'
-    )
-    payment_date = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Дата оплаты',
-        null=True,
-        blank=True
     )
 
     paid_course = models.ForeignKey(
@@ -86,24 +75,22 @@ class Payment(models.Model):
         verbose_name='Оплаченный курс',
         related_name='course_payments'
     )
-    paid_lesson = models.ForeignKey(
-        Lesson,
-        on_delete=models.SET_NULL,
-        null=True,
+
+    amount_rub = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Сумма в рублях', default=0.0)
+
+    amount_cents = models.PositiveIntegerField(verbose_name='Сумма в копейках', default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+
+    payment_url = models.URLField(
+        verbose_name='Ссылка на оплату',
         blank=True,
-        verbose_name='Оплаченный урок',
-        related_name='lesson_payments'
+        null=True,
+        max_length=500
     )
-
-    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Сумма оплаты')
-    method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES, default='transfer',
-                              verbose_name='Способ оплаты')
-
     def __str__(self):
-        target = self.paid_course or self.paid_lesson
-        return f"Платеж {self.user.email} — {target} — {self.amount}"
+        target = self.paid_course
+        return f"Платеж {self.user.email} — {target} — {self.amount_rub} ₽"
 
     class Meta:
-        verbose_name = 'Платеж'
-        verbose_name_plural = 'Платежи'
-        ordering = ['-payment_date']
+        ordering = ['-created_at']

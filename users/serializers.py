@@ -5,9 +5,10 @@ from .models import User
 class UserProfileSerializer(serializers.ModelSerializer):
     """
     Сериализатор для просмотра и частичного обновления профиля.
-    Поля first_name и last_name берутся из родительской AbstractBaseUser.
-    Пароль исключен намеренно — для смены используйте отдельный эндпоинт.
     """
+    first_name = serializers.CharField(source='profile.first_name', allow_blank=True, required=False)
+    last_name = serializers.CharField(source='profile.last_name', allow_blank=True, required=False)
+
     class Meta:
         model = User
         fields = ('email', 'first_name', 'last_name', 'phone', 'city', 'avatar')
@@ -20,16 +21,20 @@ class UserAvatarUpdateSerializer(serializers.ModelSerializer):
         fields = ('avatar',)
 
 
+from rest_framework import serializers
+
+
 class PaymentSerializer(serializers.ModelSerializer):
     user_email = serializers.ReadOnlyField(source='user.email')
+    course_title = serializers.ReadOnlyField(source='paid_course.title')
 
     class Meta:
         model = Payment
         fields = [
-            'id', 'user', 'user_email', 'payment_date',
-            'paid_course', 'paid_lesson', 'amount', 'method'
+            'id', 'user', 'user_email', 'course_title',
+            'paid_course', 'amount_rub', 'payment_url', 'created_at'
         ]
-        read_only_fields = ['user', 'payment_date']
+        read_only_fields = ['user', 'payment_url', 'created_at', 'amount_rub']
 
 
 class RegisterSerializer(serializers.ModelSerializer):

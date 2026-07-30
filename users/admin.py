@@ -5,6 +5,11 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django import forms
 from django.core.exceptions import ValidationError
 
+from django.urls import reverse
+from django.utils.html import format_html
+from .models import Payment
+
+
 
 class UserCreationForm(forms.ModelForm):
     password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput)
@@ -82,6 +87,51 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('user', 'payment_date', 'amount', 'method', 'paid_course', 'paid_lesson')
-    list_filter = ('method', 'payment_date')
-    search_fields = ('user__email', 'amount')
+    """
+    Админ-панель для платежей.
+    """
+
+    # Поля в списке объектов
+    list_display = (
+        'user_email_link',
+        'paid_course_title',
+        'amount_rub',
+        'payment_url_link',
+        'created_at'
+    )
+
+    list_filter = ('created_at', 'paid_course')
+
+    search_fields = ('user__email', 'paid_course__title')
+
+    readonly_fields = ('payment_url', 'created_at', 'user_email_static')
+
+    date_hierarchy = 'created_at'
+
+    @admin.display(description='Email пользователя', ordering='user__email')
+    def user_email_link(self, obj):
+        """Кликабельный email со ссылкой на профиль пользователя"""
+        if obj.user:
+            url = reverse("admin:users_user_change", args=[obj.user.pk])
+            return format_html('<a href="{}">{}</a>', url, obj.user.email)
+        return '-'
+
+    @admin.display(description='Email (стат.)')
+    def user_email_static(self, obj):
+        """Статичный email внутри формы платежа (для copy-paste)"""
+        return obj.user.email if obj.user else '-'
+
+    @admin.display(description='Курс', ordering='paid_course__title')
+    def paid_course_title(self, obj):
+        """Название курса вместо ID"""
+        return obj.paid_course.title if obj.paid_course else '-'
+
+    @admin.display(description='Ссылка на оплату')
+    def payment_url_link(self, obj):
+        """Кнопка-ссылка для быстрого перехода к Checkout Stripe из админки"""
+        if obj.payment_url:
+            return format_html(
+                '<a class="button" href="{}" target="_blank" rel="noopener">Перейти к оплате</a>',
+                obj.payment_url
+            )
+        return '-'

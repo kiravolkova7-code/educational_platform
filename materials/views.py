@@ -96,26 +96,16 @@ class CourseViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def perform_update(self, serializer):
-        """
-        Вызывается после валидации, но до сохранения при update/partial_update.
-        """
         instance = serializer.save()
 
-        materials_updated = any(
-            field in self.request.data
-            for field in ['modules', 'lessons', 'description']
-        )
+        emails = User.objects.filter(
+            subscriptions__course=instance,
+            is_active=True,
+        ).values_list('email', flat=True).distinct()
 
-        if materials_updated:
-            emails = User.objects.filter(
-                subscriptions__course=instance,
-                payments__paid_course=instance,
-                is_active=True
-            ).values_list('email', flat=True).distinct()
-
-            for email in emails:
-                send_course_update_email.delay(
-                    user_email=email,
-                    course_id=instance.id,
-                    course_title=instance.title
-                )
+        for email in emails:
+            send_course_update_email.delay(
+                user_email=email,
+                course_id=instance.id,
+                course_title=instance.title,
+            )

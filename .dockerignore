@@ -1,0 +1,32 @@
+# Виртуальные окружения и зависимости
+.env*
+.venv/
+__pycache__
+*.egg-info
+.env
+
+# Файлы кэша и сборок
+.DS_Store # Для macOS
+node_modules/
+.coverage # Убираем файл покрытия из корня
+**.coverage # И все файлы coverage во вложенных директориях
+htmlcov/ # Папку htmlcov
+pytest_cache/
+
+# Системные файлы Windows
+Thumbs.db
+Desktop.ini
+
+# Временные файлы IDE
+.idea/
+.vscode/
+
+# Конфигурации CI/CD и другие служебные файлы
+.github/
+.travis.yml
+.gitlab-ci.yml
+.circleci/
+
+# Git и логи
+.git/
+*.log

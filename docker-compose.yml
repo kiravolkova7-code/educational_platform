@@ -1,0 +1,77 @@
+version: '3.9'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./dockerfile.django
+    command: >
+      sh -c "python manage.py migrate &&
+                   python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+    ports:
+      - '8000:8000'
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: ./dockerfile.django
+    command: poetry run celery -A config worker --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - redis
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: ./dockerfile.django
+    command: poetry run celery -A config beat --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:16-alpine
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${DB_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  pg_data:
+    name: pg_data
+  redis_data:
+    name: redis_data
+  static_volume:
+    name: static_volume

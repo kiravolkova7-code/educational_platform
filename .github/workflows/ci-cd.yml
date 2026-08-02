@@ -20,9 +20,12 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install all project dependencies and test tools
         run: |
-          pip install flake8 pytest-django django-stubs coverage
+          pip install -r requirements.txt 
+
+          pip install --upgrade pip && \
+            pip install flake8 pytest-django django-stubs coverage
 
       - name: Run tests
         env:

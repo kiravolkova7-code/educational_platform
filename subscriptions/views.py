@@ -10,23 +10,30 @@ class UserCourseSubscriptionView(APIView):
 
     def post(self, request, format=None):
         user = request.user
-        course_id = request.data.get('course_id')
+        course_id = request.data.get("course_id")
 
         if not course_id:
-            return Response({'error': 'Не указан ID курса'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Не указан ID курса"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             course_item = Course.objects.get(id=course_id)
         except Course.DoesNotExist:
-            return Response({'error': 'Курс не найден'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Курс не найден"}, status=status.HTTP_404_NOT_FOUND
+            )
 
-        subs_queryset = Subscription.objects.filter(user=user, course=course_item)
+        subs_queryset = Subscription.objects.filter(
+            user=user, course=course_item
+        )
 
         if subs_queryset.exists():
             subs_queryset.delete()
-            message = 'подписка удалена'
+            message = "подписка удалена"
         else:
             Subscription.objects.create(user=user, course=course_item)
-            message = 'подписка добавлена'
+            message = "подписка добавлена"
 
         return Response({"message": message}, status=status.HTTP_200_OK)

@@ -18,8 +18,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Subscription",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("subscribed_at", models.DateTimeField(auto_now_add=True, verbose_name="Дата подписки")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "subscribed_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Дата подписки"
+                    ),
+                ),
                 (
                     "course",
                     models.ForeignKey(

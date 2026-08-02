@@ -21,13 +21,12 @@ services:
       redis:
         condition: service_started
 
+
   celery-worker:
     build:
       context: .
       dockerfile: ./dockerfile.django
-    command: poetry run celery -A config worker --loglevel=info
-    volumes:
-      - .:/app
+    command: celery -A config worker --loglevel=info
     env_file:
       - ./.env
     depends_on:
@@ -38,9 +37,7 @@ services:
     build:
       context: .
       dockerfile: ./dockerfile.django
-    command: poetry run celery -A config beat --loglevel=info
-    volumes:
-      - .:/app
+    command: celery -A config beat --loglevel=info
     env_file:
       - ./.env
     depends_on:
@@ -49,6 +46,8 @@ services:
 
   db:
     image: postgres:16-alpine
+    expose:
+      - "5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     environment:
@@ -56,15 +55,15 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "${DB_USER}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER}" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:alpine
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     volumes:
       - redis_data:/data
 

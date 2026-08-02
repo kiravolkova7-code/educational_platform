@@ -36,9 +36,6 @@ class UserAvatarUpdateSerializer(serializers.ModelSerializer):
         fields = ("avatar",)
 
 
-from rest_framework import serializers
-
-
 class PaymentSerializer(serializers.ModelSerializer):
     user_email = serializers.ReadOnlyField(source="user.email")
     course_title = serializers.ReadOnlyField(source="paid_course.title")

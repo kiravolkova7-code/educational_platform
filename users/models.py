@@ -5,7 +5,7 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 
-from materials.models import Course, Lesson
+from materials.models import Course
 
 
 class UserManager(BaseUserManager):

@@ -37,6 +37,10 @@ jobs:
 
       - name: Run linter
         run: |
+          flake8 . --ignore=E501,migrations/
+
+      - name: Run linter
+        run: |
           flake8 .
 
   build-and-deploy:

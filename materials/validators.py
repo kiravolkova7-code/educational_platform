@@ -44,5 +44,6 @@ def validate_youtube_only(value: str):
     if domain not in ALLOWED_DOMAINS and not is_short:
         allowed_list = ", ".join(ALLOWED_DOMAINS)
         raise ValidationError(
-            f"Разрешены только видео с YouTube ({allowed_list}). Ссылка на {domain} заблокирована."
+            f"Разрешены только видео с YouTube ({allowed_list}). "
+            f"Ссылка на {domain} заблокирована."
         )

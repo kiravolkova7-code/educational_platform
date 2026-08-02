@@ -40,10 +40,6 @@ jobs:
           flake8 . --ignore=E501,migrations/ \
             flake8 . --ignore=E501,config/
 
-      - name: Run linter
-        run: |
-          flake8 .
-
   build-and-deploy:
     needs: test-and-lint
     runs-on: ubuntu-latest

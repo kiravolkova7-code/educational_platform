@@ -1,10 +1,7 @@
 services:
   web:
     image: ${IMAGE_TAG:-kiravolkova7/educational_platform:latest}
-
-    command: >
-      sh -c "gunicorn --bind 0.0.0.0:8000 --workers 4 config.wsgi:application"
-
+    working_dir: /app
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media

@@ -75,7 +75,8 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/educational_platform:${{ github.sha }}
             
             docker compose down
-            IMAGE_TAG=${{ github.sha }} docker compose up -d --remove-orphans
-            
+            export IMAGE_TAG="${{ secrets.DOCKERHUB_USERNAME }}/educational_platform:${{ github.sha }}"
+            docker pull "$IMAGE_TAG"
+            IMAGE_TAG="$IMAGE_TAG" docker compose up -d --remove-orphans
             docker compose exec -T web python manage.py migrate --noinput
             docker compose exec -T web python manage.py collectstatic --noinput

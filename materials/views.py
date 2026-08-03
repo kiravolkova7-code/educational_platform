@@ -14,28 +14,36 @@ class LessonViewSet(viewsets.ModelViewSet):
     """
     ViewSet для Уроков с динамической настройкой прав доступа.
     """
+
     serializer_class = LessonSerializer
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         user = self.request.user
 
-        if IsModerator().has_permission(self.request, self) or user.is_superuser:
+        if (
+            IsModerator().has_permission(self.request, self)
+            or user.is_superuser
+        ):
             return Lesson.objects.all()
 
-        subscribed_courses_ids = list(user.subscriptions.values_list('course_id', flat=True))
+        subscribed_courses_ids = list(
+            user.subscriptions.values_list("course_id", flat=True)
+        )
         return Lesson.objects.filter(
-            Q(owner=user) |
-            Q(course__id__in=subscribed_courses_ids)
+            Q(owner=user) | Q(course__id__in=subscribed_courses_ids)
         )
 
     def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
+        if self.action in ["list", "retrieve"]:
             permission_classes = [permissions.IsAuthenticated]
-        elif self.action == 'create':
+        elif self.action == "create":
             permission_classes = [permissions.IsAuthenticated, ~IsModerator]
-        elif self.action in ['update', 'partial_update']:
-            permission_classes = [permissions.IsAuthenticated, IsOwnerOrModerator]
+        elif self.action in ["update", "partial_update"]:
+            permission_classes = [
+                permissions.IsAuthenticated,
+                IsOwnerOrModerator,
+            ]
         else:  # destroy
             permission_classes = [permissions.IsAdminUser]
 
@@ -49,28 +57,32 @@ class CourseViewSet(viewsets.ModelViewSet):
     """
     ViewSet для Курсов с предзагрузкой уроков и динамическими правами.
     """
+
     serializer_class = CourseSerializer
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         qs = Course.objects.prefetch_related(
-            Prefetch('lessons', queryset=Lesson.objects.order_by('order'))
+            Prefetch("lessons", queryset=Lesson.objects.order_by("order"))
         )
 
-        if self.request.user.groups.filter(name='moderators').exists():
+        if self.request.user.groups.filter(name="moderators").exists():
             return qs
 
         user = self.request.user
-        subscribed_ids = user.subscriptions.values_list('course_id', flat=True)
+        subscribed_ids = user.subscriptions.values_list("course_id", flat=True)
         return qs.filter(Q(owner=user) | Q(id__in=subscribed_ids)).distinct()
 
     def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
+        if self.action in ["list", "retrieve"]:
             permission_classes = [permissions.IsAuthenticated]
-        elif self.action == 'create':
+        elif self.action == "create":
             permission_classes = [permissions.IsAuthenticated, ~IsModerator]
-        elif self.action in ['update', 'partial_update']:
-            permission_classes = [permissions.IsAuthenticated, IsOwnerOrModerator]
+        elif self.action in ["update", "partial_update"]:
+            permission_classes = [
+                permissions.IsAuthenticated,
+                IsOwnerOrModerator,
+            ]
         else:
             permission_classes = [permissions.IsAdminUser]
 
@@ -81,7 +93,9 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance, context={'request': request})
+        serializer = self.get_serializer(
+            instance, context={"request": request}
+        )
         return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
@@ -89,19 +103,27 @@ class CourseViewSet(viewsets.ModelViewSet):
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_serializer(page, many=True, context={'request': request})
+            serializer = self.get_serializer(
+                page, many=True, context={"request": request}
+            )
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(queryset, many=True, context={'request': request})
+        serializer = self.get_serializer(
+            queryset, many=True, context={"request": request}
+        )
         return Response(serializer.data)
 
     def perform_update(self, serializer):
         instance = serializer.save()
 
-        emails = User.objects.filter(
-            subscriptions__course=instance,
-            is_active=True,
-        ).values_list('email', flat=True).distinct()
+        emails = (
+            User.objects.filter(
+                subscriptions__course=instance,
+                is_active=True,
+            )
+            .values_list("email", flat=True)
+            .distinct()
+        )
 
         for email in emails:
             send_course_update_email.delay(

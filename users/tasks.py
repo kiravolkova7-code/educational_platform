@@ -18,22 +18,27 @@ def deactivate_inactive_users(self):
         threshold_date = timezone.now() - timedelta(days=30)
 
         users_to_deactivate = User.objects.filter(
-            is_active=True,
-            last_login__lt=threshold_date
+            is_active=True, last_login__lt=threshold_date
         )
 
         count = users_to_deactivate.count()
         if count == 0:
-            logger.info('Задача деактивации: не найдено пользователей для блокировки.')
-            return {'status': 'no_changes'}
+            logger.info(
+                "Задача деактивации: не найдено пользователей для блокировки."
+            )
+            return {"status": "no_changes"}
 
         updated_count = users_to_deactivate.update(is_active=False)
 
-        user_ids = list(users_to_deactivate.values_list('id', flat=True))
-        logger.warning(f'Деактивировано {updated_count} пользователей за неактивность: IDs {user_ids}')
+        user_ids = list(users_to_deactivate.values_list("id", flat=True))
+        logger.warning(
+            f"Деактивировано {updated_count} пользователей за неактивность: IDs {user_ids}"
+        )
 
-        return {'status': 'success', 'deactivated_count': updated_count}
+        return {"status": "success", "deactivated_count": updated_count}
 
     except Exception as exc:
-        logger.error(f'Ошибка в задаче deactivate_inactive_users: {exc}', exc_info=True)
+        logger.error(
+            f"Ошибка в задаче deactivate_inactive_users: {exc}", exc_info=True
+        )
         raise

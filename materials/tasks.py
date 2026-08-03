@@ -13,17 +13,21 @@ def send_course_update_email(self, user_email, course_id, course_title):
     bind=True позволяет обращаться к self.request.id для логирования.
     """
     try:
-        course_url = f"{settings.SITE_URL}{reverse('course_detail', args=[course_id])}"
+        course_url = (
+            f"{settings.SITE_URL}{reverse('course_detail', args=[course_id])}"
+        )
 
         context = {
-            'user_email': user_email,
-            'course_title': course_title,
-            'course_url': course_url,
+            "user_email": user_email,
+            "course_title": course_title,
+            "course_url": course_url,
         }
 
-        subject = f'[Обновление] В курсе "{course_title}" появились новые материалы'
+        subject = (
+            f'[Обновление] В курсе "{course_title}" появились новые материалы'
+        )
 
-        html_message = render_to_string('emails/course_update.html', context)
+        html_message = render_to_string("emails/course_update.html", context)
 
         plain_message = strip_tags(html_message)
 
@@ -37,6 +41,6 @@ def send_course_update_email(self, user_email, course_id, course_title):
             html_message=html_message,
             fail_silently=False,
         )
-        return {'status': 'success', 'task_id': self.request.id}
+        return {"status": "success", "task_id": self.request.id}
     except Exception as exc:
         raise self.retry(exc=exc, countdown=300, max_retries=3)

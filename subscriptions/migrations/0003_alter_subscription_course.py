@@ -8,7 +8,10 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("materials", "0003_course_subscribers"),
-        ("subscriptions", "0002_rename_subscribed_at_subscription_created_at_and_more"),
+        (
+            "subscriptions",
+            "0002_rename_subscribed_at_subscription_created_at_and_more",
+        ),
     ]
 
     operations = [

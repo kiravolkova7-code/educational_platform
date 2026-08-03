@@ -1,0 +1,9 @@
+[flake8]
+max-line-length = 119
+ignore = E203, W503, E501
+exclude =
+    migrations/,
+    config/celery.py,
+    users/migrations/,
+    materials/migrations/
+    subscriptions/migrations/

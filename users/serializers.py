@@ -1,7 +1,5 @@
-from .models import Payment
 from rest_framework import serializers
-from .models import User
-
+from .models import Payment, User
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """
@@ -34,9 +32,6 @@ class UserAvatarUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("avatar",)
-
-
-from rest_framework import serializers
 
 
 class PaymentSerializer(serializers.ModelSerializer):

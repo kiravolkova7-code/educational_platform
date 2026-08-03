@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Payment, User
 
+
 class UserProfileSerializer(serializers.ModelSerializer):
     """
     Сериализатор для просмотра и частичного обновления профиля.

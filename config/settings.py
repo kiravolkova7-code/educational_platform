@@ -63,15 +63,15 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
-        "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT"),
-    }
+    "default": dj_database_url.config(
+        default=os.getenv("DATABASE_URL"),
+        conn_max_age=600,
+    )
 }
+
+# Переключение на SQLite только внутри GitHub Actions
+if not DEBUG and os.getenv("GITHUB_ACTIONS"):
+    DATABASES["default"] = dj_database_url.config(default="sqlite:///test.db")
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [

@@ -14,20 +14,49 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Course",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("title", models.CharField(max_length=100, verbose_name="Название")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=100, verbose_name="Название"),
+                ),
                 (
                     "preview",
-                    models.ImageField(blank=True, null=True, upload_to="courses/previews/", verbose_name="Превью"),
+                    models.ImageField(
+                        blank=True,
+                        null=True,
+                        upload_to="courses/previews/",
+                        verbose_name="Превью",
+                    ),
                 ),
                 (
                     "description",
                     models.TextField(
-                        blank=True, help_text="Максимум 500 символов", null=True, verbose_name="Описание"
+                        blank=True,
+                        help_text="Максимум 500 символов",
+                        null=True,
+                        verbose_name="Описание",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")),
-                ("update_at", models.DateTimeField(auto_now=True, verbose_name="Дата обновления")),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Дата создания"
+                    ),
+                ),
+                (
+                    "update_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Дата обновления"
+                    ),
+                ),
             ],
             options={
                 "verbose_name": "Курс",
@@ -38,19 +67,62 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Lesson",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("title", models.CharField(max_length=200, verbose_name="Название урока")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        max_length=200, verbose_name="Название урока"
+                    ),
+                ),
                 (
                     "preview",
                     models.ImageField(
-                        blank=True, null=True, upload_to="lessons/previews/", verbose_name="Превью урока"
+                        blank=True,
+                        null=True,
+                        upload_to="lessons/previews/",
+                        verbose_name="Превью урока",
                     ),
                 ),
-                ("description", models.TextField(blank=True, null=True, verbose_name="Описание урока")),
-                ("video_url", models.URLField(blank=True, max_length=500, verbose_name="Ссылка на видео")),
-                ("order", models.PositiveSmallIntegerField(default=1, verbose_name="Порядок отображения")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Дата изменения")),
+                (
+                    "description",
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Описание урока"
+                    ),
+                ),
+                (
+                    "video_url",
+                    models.URLField(
+                        blank=True,
+                        max_length=500,
+                        verbose_name="Ссылка на видео",
+                    ),
+                ),
+                (
+                    "order",
+                    models.PositiveSmallIntegerField(
+                        default=1, verbose_name="Порядок отображения"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Дата добавления"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Дата изменения"
+                    ),
+                ),
                 (
                     "course",
                     models.ForeignKey(
@@ -66,7 +138,10 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Уроки",
                 "ordering": ["order", "created_at"],
                 "constraints": [
-                    models.UniqueConstraint(fields=("course", "order"), name="unique_lesson_order_per_course")
+                    models.UniqueConstraint(
+                        fields=("course", "order"),
+                        name="unique_lesson_order_per_course",
+                    )
                 ],
             },
         ),

@@ -16,7 +16,10 @@ class Migration(migrations.Migration):
             model_name="course",
             name="subscribers",
             field=models.ManyToManyField(
-                blank=True, related_name="subscribed_courses", to=settings.AUTH_USER_MODEL, verbose_name="Подписчики"
+                blank=True,
+                related_name="subscribed_courses",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Подписчики",
             ),
         ),
     ]

@@ -34,18 +34,27 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="payment",
             name="amount_cents",
-            field=models.PositiveIntegerField(default=0, verbose_name="Сумма в копейках"),
+            field=models.PositiveIntegerField(
+                default=0, verbose_name="Сумма в копейках"
+            ),
         ),
         migrations.AddField(
             model_name="payment",
             name="amount_rub",
-            field=models.DecimalField(decimal_places=2, default=0.0, max_digits=10, verbose_name="Сумма в рублях"),
+            field=models.DecimalField(
+                decimal_places=2,
+                default=0.0,
+                max_digits=10,
+                verbose_name="Сумма в рублях",
+            ),
         ),
         migrations.AddField(
             model_name="payment",
             name="created_at",
             field=models.DateTimeField(
-                auto_now_add=True, default=django.utils.timezone.now, verbose_name="Дата создания"
+                auto_now_add=True,
+                default=django.utils.timezone.now,
+                verbose_name="Дата создания",
             ),
             preserve_default=False,
         ),

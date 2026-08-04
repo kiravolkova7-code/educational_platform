@@ -1,8 +1,6 @@
 services:
   web:
-    build:
-      context: .
-      dockerfile: ./dockerfile.django
+    image: ${IMAGE_TAG:-${DOCKERHUB_USERNAME:-kiravolkova7}/educational_platform_work:latest}
     command: >
       sh -c "python manage.py migrate --noinput &&
              python manage.py collectstatic --noinput &&
@@ -63,19 +61,17 @@ services:
       - redis_data:/data
 
   nginx:
-    build:
-      context: ./nginx
+    image: nginx:alpine
+    depends_on:
+      - web
     ports:
       - "80:80"
-    depends_on:
-
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
+      - "443:443"
     volumes:
-      - static_volume:/vol/static
-      - media_volume:/vol/media
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/vol/static/
+      - media_volume:/vol/media/
+    restart: always
 
 volumes:
   pg_data:

@@ -13,6 +13,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="payment",
             name="payment_date",
-            field=models.DateTimeField(auto_now_add=True, null=True, verbose_name="Дата оплаты"),
+            field=models.DateTimeField(
+                auto_now_add=True, null=True, verbose_name="Дата оплаты"
+            ),
         ),
     ]

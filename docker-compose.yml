@@ -1,48 +1,20 @@
-version: '3.9'
-
 services:
   web:
-    build:
-      context: .
-      dockerfile: ./dockerfile.django
+    image: ${IMAGE_TAG:-${DOCKERHUB_USERNAME:-kiravolkova7}/educational_platform_work:latest}
     command: >
-      sh -c "python manage.py migrate &&
-                   python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+    env_file: .env
     volumes:
-      - .:/app
-      - static_volume:/app/staticfiles
-    ports:
-      - '8000:8000'
-    env_file:
-      - ./.env
+      - static_volume:/app/staticfiles/
+    expose:
+      - "8000"
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
-
-
-  celery-worker:
-    build:
-      context: .
-      dockerfile: ./dockerfile.django
-    command: celery -A config worker --loglevel=info
-    env_file:
-      - ./.env
-    depends_on:
-      - db
-      - redis
-
-  celery-beat:
-    build:
-      context: .
-      dockerfile: ./dockerfile.django
-    command: celery -A config beat --loglevel=info
-    env_file:
-      - ./.env
-    depends_on:
-      - db
-      - redis
 
   db:
     image: postgres:16-alpine
@@ -60,6 +32,27 @@ services:
       timeout: 5s
       retries: 5
 
+  celery-worker:
+    build:
+      context: .
+      dockerfile: ./dockerfile.django
+    command: celery -A config worker --loglevel=info
+    env_file: .env
+    depends_on:
+      - web
+      - redis
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: ./dockerfile.django
+    command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    env_file: .env
+    depends_on:
+      - web
+      - redis
+
+
   redis:
     image: redis:alpine
     expose:
@@ -67,10 +60,21 @@ services:
     volumes:
       - redis_data:/data
 
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/vol/static/
+      - media_volume:/vol/media/
+    restart: always
+
 volumes:
   pg_data:
-    name: pg_data
   redis_data:
-    name: redis_data
   static_volume:
-    name: static_volume
+  media_volume:

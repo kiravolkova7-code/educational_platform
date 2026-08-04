@@ -16,13 +16,36 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Payment",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("payment_date", models.DateTimeField(auto_now_add=True, verbose_name="Дата оплаты")),
-                ("amount", models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Сумма оплаты")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "payment_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Дата оплаты"
+                    ),
+                ),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2,
+                        max_digits=10,
+                        verbose_name="Сумма оплаты",
+                    ),
+                ),
                 (
                     "method",
                     models.CharField(
-                        choices=[("cash", "Наличные"), ("transfer", "Перевод на счет")],
+                        choices=[
+                            ("cash", "Наличные"),
+                            ("transfer", "Перевод на счет"),
+                        ],
                         default="transfer",
                         max_length=10,
                         verbose_name="Способ оплаты",
